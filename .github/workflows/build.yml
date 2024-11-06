@@ -1,0 +1,38 @@
+name: Create Build Artifacts
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  docker-job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Run Docker pull and save
+      run: |
+        docker pull confluentinc/confluent-init-container:2.9.3
+        docker save confluentinc/confluent-init-container:2.9.3 -o \
+          confluent-init-container-2.9.3.tar.gz
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      with:
+        tag_name: ${{ github.run_number }}
+        release_name: ${{ github.run_number }}
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: confluent-init-container-2.9.3.tar.gz
+        asset_name: confluent-init-container-2.9.3.tar.gz
+        asset_content_type: application/gzip
