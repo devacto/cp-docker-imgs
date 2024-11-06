@@ -34,6 +34,14 @@ jobs:
         docker save confluentinc/confluent-init-container:2.9.3 -o \
           confluent-init-container-2.9.3.tar.gz
 
+    - name: Split large cp-schema-registry artifact
+      run: |
+        split -b 1900M -d \
+          cp-schema-registry-7.7.1.tar.gz \
+          cp-schema-registry-7.7.1.tar.gz.part
+        echo "SPLIT_FILES=$(ls cp-schema-registry-7.7.1.tar.gz.part* \
+         | tr '\n' ' ')" >> $GITHUB_ENV
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -92,3 +100,23 @@ jobs:
         asset_path: cp-schema-registry-7.7.1.tar.gz
         asset_name: cp-schema-registry-7.7.1.tar.gz
         asset_content_type: application/gzip
+
+    - name: Add Instructions to Release Notes
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release edit ${{ github.run_number }} --notes "
+        Automated release ${{ github.run_number }}
+
+        This release contains split parts of the cp-schema-registry:7.7.1 Docker image. To reconstruct the image:
+
+        1. Download all parts (cp-schema-registry-7.7.1.tar.gz.part*)
+        2. Combine the parts:
+           cat cp-schema-registry-7.7.1.tar.gz.part* > \
+             cp-schema-registry-7.7.1.tar.gz
+        3. Load the Docker image:
+           docker load < cp-schema-registry-7.7.1.tar.gz
+
+        After these steps, you can use the image as normal with:
+        docker run confluentinc/cp-schema-registry:7.7.1
+        "
