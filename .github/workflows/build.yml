@@ -18,6 +18,18 @@ jobs:
 
     - name: Run Docker pull and save
       run: |
+        docker pull confluentinc/cp-zookeeper:7.7.1
+        docker save confluentinc/cp-zookeeper:7.7.1 -o \
+          cp-zookeeper-7.7.1.tar.gz
+        docker pull confluentinc/cp-server:7.7.1
+        docker save confluentinc/cp-server:7.7.1 -o \
+          cp-server-7.7.1.tar.gz
+        docker pull confluentinc/cp-enterprise-control-center:7.7.1
+        docker save confluentinc/cp-enterprise-control-center:7.7.1 -o \
+          cp-enterprise-control-center-7.7.1.tar.gz
+        docker pull confluentinc/cp-schema-registry:7.7.1
+        docker save confluentinc/cp-schema-registry:7.7.1 -o \
+          cp-schema-registry-7.7.1.tar.gz
         docker pull confluentinc/confluent-init-container:2.9.3
         docker save confluentinc/confluent-init-container:2.9.3 -o \
           confluent-init-container-2.9.3.tar.gz
@@ -31,7 +43,7 @@ jobs:
         tag_name: ${{ github.run_number }}
         release_name: ${{ github.run_number }}
 
-    - name: Upload Release Asset
+    - name: Upload confluent-init-container artifact
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,4 +51,44 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: confluent-init-container-2.9.3.tar.gz
         asset_name: confluent-init-container-2.9.3.tar.gz
+        asset_content_type: application/gzip
+
+    - name: Upload cp-zookeeper artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: cp-zookeeper-7.7.1.tar.gz
+        asset_name: cp-zookeeper-7.7.1.tar.gz
+        asset_content_type: application/gzip
+
+    - name: Upload cp-server artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: cp-server-7.7.1.tar.gz
+        asset_name: cp-server-7.7.1.tar.gz
+        asset_content_type: application/gzip
+
+    - name: Upload cp-enterprise-control-center artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: cp-enterprise-control-center-7.7.1.tar.gz
+        asset_name: cp-enterprise-control-center-7.7.1.tar.gz
+        asset_content_type: application/gzip
+
+    - name: Upload cp-schema-registry artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: cp-schema-registry-7.7.1.tar.gz
+        asset_name: cp-schema-registry-7.7.1.tar.gz
         asset_content_type: application/gzip
